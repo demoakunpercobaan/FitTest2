@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FitTest AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f1f5fb;color:#0f2447;padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+.top{background:#fff;padding:calc(8px + env(safe-area-inset-top)) 14px 8px;text-align:center;box-shadow:0 1px 6px #0002}
+.top b{font-size:26px;color:#0b3a8a;font-style:italic}.top i{color:#1d6df2}.top small{display:block;color:#456;font-size:12px}
+main{max-width:980px;margin:auto;padding:12px}
+.v{display:none}.v.on{display:block}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#fff;border-top:1px solid #dde;padding-bottom:env(safe-area-inset-bottom);z-index:9}
+nav button{flex:1;border:0;background:none;padding:7px 1px;font-size:10px;color:#667}
+nav button span{display:block;font-size:20px}nav button.on{color:#1d6df2;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px #0001;text-align:center;padding-bottom:10px}
+.ch{background:var(--c);color:#fff;font-weight:700;padding:8px;font-size:14px}
+.ill{font-size:46px;padding:8px;background:linear-gradient(#fff,color-mix(in srgb,var(--c) 15%,#fff))}
+.card p{font-size:12px;margin:4px 8px 8px;color:#556;min-height:30px}
+.btn,button.b{background:var(--c,#1d6df2);color:#fff;border:0;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:700;cursor:pointer}
+.btn.g{background:#64748b}.btn.r{background:#dc2626}
+button:disabled{opacity:.4}
+h2{margin:6px 0 10px}
+.muted{color:#678;font-size:13px}
+.row{background:#fff;border-radius:10px;padding:10px;margin:6px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.row button{border:0;background:#eef;border-radius:8px;padding:8px;margin-left:4px;font-size:16px}
+input,select{width:100%;padding:10px;border:1px solid #bcd;border-radius:8px;font-size:15px;background:#fff;margin:3px 0 8px}
+label{font-size:12px;color:#456}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.tabs button{border:0;border-radius:20px;padding:8px 12px;color:#fff;background:var(--c);white-space:nowrap;opacity:.5;font-weight:600}
+.tabs button.on{opacity:1}
+#vw{position:relative;background:#111;border-radius:12px;overflow:hidden;aspect-ratio:3/4;max-height:66vh;margin:8px auto}
+@media(orientation:landscape){#vw{aspect-ratio:4/3;max-height:78vh}}
+#vw video,#vw canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#vw.mir video,#vw.mir canvas{transform:scaleX(-1)}
+.hud{position:absolute;z-index:3;color:#fff;font-weight:700;text-shadow:0 1px 4px #000}
+#tm{top:8px;left:8px;background:#000a;padding:6px 12px;border-radius:20px;font-size:20px}
+#rs{top:8px;right:8px;background:#000a;padding:6px 12px;border-radius:10px;font-size:15px;text-align:right;border:2px solid var(--c)}
+#st{bottom:8px;left:8px;right:8px;text-align:center;font-size:13px}
+#wn{bottom:34px;left:8px;right:8px;text-align:center;color:#fde047;font-size:15px}
+#big{top:52px;left:0;right:0;text-align:center;font-size:84px;line-height:1;pointer-events:none}
+#mdl{position:fixed;inset:0;background:#0b1b3a99;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+#mdl.on{display:flex}
+.mc{background:#fff;border-radius:22px;padding:22px;width:min(92vw,380px);box-shadow:0 20px 60px #0006;animation:pop .18s ease-out}
+@keyframes pop{from{transform:scale(.92);opacity:0}}
+.mc h3{margin:0 0 6px;font-size:19px}.mc p{margin:0 0 14px;color:#456;font-size:14px}.mb{display:flex;gap:8px}.mb button{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#0f2447;color:#fff;padding:12px 18px;border-radius:30px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:100;max-width:90vw;text-align:center;box-shadow:0 8px 24px #0004}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#cd{inset:0;display:flex;align-items:center;justify-content:center;font-size:110px}
+.ctl{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0}
+.tip{background:#fff;border-left:5px solid var(--c);border-radius:8px;padding:10px;font-size:13px;margin:8px 0}
+table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
+th,td{border:1px solid #cde;padding:5px;text-align:left}th{background:#e8f0ff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+dialog{border:0;border-radius:14px;width:min(92vw,460px);padding:16px}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tools .btn{padding:9px 12px;font-size:13px}
+.rp{background:#fff;padding:10px;border-radius:10px;margin:8px 0}
+@media print{.top,nav,.noprint{display:none!important}.v:not(#v-hasil){display:none!important}#v-hasil{display:block!important}.rp{page-break-after:always;box-shadow:none}body{background:#fff}}
+</style></head><body>
+<header class="top"><b>FitTest <i>AI</i></b><small>Cepat • Akurat • Berbasis AI</small></header>
+<main>
+<section id="v-dash" class="v on"></section>
+
+<section id="v-peserta" class="v">
+ <h2>Data Peserta</h2>
+ <div class="two"><input id="q" placeholder="🔍 Cari nama / nomor" oninput="rP()"><button class="btn" style="margin:3px 0 8px" onclick="editP()">＋ Tambah</button></div>
+ <div id="plist"></div>
+</section>
+
+<section id="v-test" class="v">
+ <div class="tabs" id="tabs"></div>
+ <label>Peserta</label><select id="tp"></select>
+ <div id="opts"></div>
+ <div class="two"><div><label>Kamera</label><select id="camsel" onchange="cam=this.value;startCam()"><option value="user">Depan</option><option value="environment">Belakang</option></select></div>
+ <div><label>&nbsp;</label><button class="btn g" style="width:100%;margin-top:3px" onclick="startCam()">🔄 Muat ulang kamera</button></div></div>
+ <div id="vw"><video id="vid" playsinline muted></video><canvas id="cv"></canvas>
+  <div class="hud" id="tm">00:00.00</div><div class="hud" id="rs">—</div><div class="hud" id="big"></div><div class="hud" id="cd"></div><div class="hud" id="wn"></div><div class="hud" id="st">Memulai kamera…</div></div>
+ <div class="ctl">
+  <button class="btn" id="bStart" onclick="start()">▶ Mulai</button>
+  <button class="btn g" id="bPause" onclick="pauseR()" disabled>⏸ Jeda</button>
+  <button class="btn g" id="bReset" onclick="resetT()">↺ Ulangi</button>
+  <button class="btn r" id="bStop" onclick="stopRun()" disabled>■ Selesai</button>
+  <button class="btn" id="bSave" onclick="saveRes()" disabled>💾 Simpan</button>
+  <button class="btn g" onclick="manualIn()">✍ Input manual</button>
+ </div>
+ <div class="tip" id="tip"></div>
+</section>
+
+<section id="v-hasil" class="v">
+ <h2 class="noprint">Hasil Pengujian</h2>
+ <div class="noprint">
+  <label>Peserta</label><select id="hp" onchange="rHasil()"></select>
+  <div class="two"><div><label>Dari tanggal</label><input type="date" id="hf" onchange="rHasil()"></div><div><label>Sampai</label><input type="date" id="ht" onchange="rHasil()"></div></div>
+  <div class="tools"><button class="btn" onclick="window.print()">🖨 Cetak / PDF</button><button class="btn g" onclick="csv()">⬇ CSV</button></div>
+  <label>Grafik perkembangan (pilih peserta)</label><select id="hc" onchange="rHasil()"></select>
+  <canvas id="chart" width="600" height="220" style="width:100%;background:#fff;border-radius:10px"></canvas>
+ </div>
+ <div id="rep"></div>
+</section>
+
+<section id="v-riwayat" class="v"><h2>Riwayat</h2><div class="tools"><button class="btn g" onclick="csv(true)">⬇ CSV semua</button></div><div id="rlist"></div></section>
+
+<section id="v-set" class="v">
+ <h2>Pengaturan</h2>
+ <h3>Norma penilaian</h3>
+ <p class="muted">Tabel kosong. Isi sesuai standar kebugaran jasmani yang Anda gunakan. Nilai di antara minimal dan maksimal (termasuk) mendapat kategori yang diisi.</p>
+ <div style="overflow-x:auto"><table id="norm"></table></div>
+ <div class="tools"><button class="btn" onclick="addN()">＋ Baris norma</button></div>
+ <h3>Backup data</h3>
+ <div class="tools"><button class="btn" onclick="exp()">⬇ Ekspor JSON</button><button class="btn g" onclick="$('#imp').click()">⬆ Impor JSON</button><button class="btn r" onclick="wipe()">Hapus semua data</button></div>
+ <input type="file" id="imp" accept=".json" hidden onchange="imp(event)">
+</section>
+</main>
+
+<dialog id="dp"><form onsubmit="saveP(event)"><h3 id="dpt">Peserta</h3><input type="hidden" id="pid">
+ <label>Nama lengkap</label><input id="pn" required><label>Nomor peserta</label><input id="pno" required>
+ <label>Jenis kelamin</label><select id="pjk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+ <label>Tanggal lahir</label><input type="date" id="ptl" required><label>Tinggi badan (cm)</label><input type="number" step="0.1" id="ptb" required>
+ <label>Berat badan (kg)</label><input type="number" step="0.1" id="pbb"><label>Kelas</label><input id="pk">
+ <div class="two"><button type="button" class="btn g" onclick="dp.close()">Batal</button><button class="btn">Simpan</button></div></form></dialog>
+<dialog id="dd"></dialog>
+
+<nav id="nav"></nav>
+<div id="mdl"><div class="mc"><h3 id="mt"></h3><p id="mm"></p><input id="mi" hidden inputmode="decimal"><div class="mb"><button id="mc" class="btn g"></button><button id="mo" class="btn"></button></div></div></div>
+<div id="toast"></div>
+
+<script type="module">
+import {PoseLandmarker,FilesetResolver} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+// Memuat model MediaPipe Pose Landmarker (sekali, lalu dipakai ulang)
+window.loadPose=async()=>{
+ const f=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+ const mk=d=>PoseLandmarker.createFromOptions(f,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:d},runningMode:"VIDEO",numPoses:1});
+ try{return await mk("GPU")}catch(e){return await mk("CPU")}
+};
+window.dispatchEvent(new Event('poseReady'));
+</script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const now=()=>performance.now();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const age=d=>d?Math.floor((Date.now()-new Date(d))/31557600000):'-';
+// ===== Penyimpanan (LocalStorage) =====
+let db=JSON.parse(localStorage.getItem('fittest')||'null')||{p:[],r:[],n:[]};
+const save=()=>localStorage.setItem('fittest',JSON.stringify(db));
+// ===== Konfigurasi tes =====
+const T={
+ sprint:{n:'Sprint',c:'#16a34a',i:'🏃',u:'m/s',d:'Mengukur kecepatan lari dalam jarak tertentu.',tip:'Kamera dari samping, pasang di tripod setinggi pinggang, seluruh lintasan masuk layar. Atur garis mulai & akhir (% lebar layar) sesuai marka lintasan. Mode manual tersedia jika deteksi garis tidak memungkinkan.'},
+ agility:{n:'Agility',c:'#f97316',i:'🔺',u:'s',d:'Mengukur kemampuan mengubah arah dengan cepat.',tip:'Kamera dari samping, jarak antar cone terlihat penuh. Timer mulai saat peserta bergerak; selesai saat jumlah lintasan (tiap perubahan arah) tercapai.'},
+ vjump:{n:'Vertical Jump',c:'#2563eb',i:'🦘',u:'cm',d:'Mengukur daya ledak otot tungkai lewat lompatan vertikal.',tip:'Kamera dari samping, seluruh tubuh (kepala–kaki) terlihat, kamera diam. Berdiri tegak selama hitung mundur untuk kalibrasi (memakai tinggi badan peserta, estimasi). Lalu melompat.'},
+ bjump:{n:'Standing Broad Jump',c:'#7c3aed',i:'📏',u:'cm',d:'Mengukur daya tolakan dan keseimbangan tubuh.',tip:'Kamera tegak lurus arah lompatan, jarak cukup jauh agar awal dan pendaratan terlihat. Berdiri di posisi awal selama hitung mundur (kalibrasi dari tinggi badan), lalu melompat dan tahan posisi mendarat.'},
+ pushup:{n:'Push Up',c:'#ef4444',i:'💪',u:'kali',d:'Mengukur kekuatan dan daya tahan otot lengan, dada, dan bahu.',tip:'Kamera dari samping. Jaga badan lurus, jangan menekuk pinggul terlalu tinggi atau rendah. Repetisi dihitung jika siku turun <90° dan naik kembali >155° dengan badan lurus.'},
+ situp:{n:'Sit Up',c:'#0d9488',i:'🧘',u:'kali',d:'Mengukur kekuatan dan daya tahan otot perut.',tip:'Kamera dari samping, lutut ditekuk. Repetisi dihitung saat badan naik (sudut bahu–pinggul–lutut <75°) dan kembali berbaring (>115°).'}
+};
+let cur='sprint',cam='user',stream=null,pose=null,raf=0,lastT=0;
+let bad=false,run='idle',acc=0,t0=0,started=false,n=0,ph=null,pend=null,live='',cal=[],base=null,sc=0,jmp=false,peak=0,stab=0,psd=null,pe=null,ag={},minA=999;
+const vid=$('#vid'),cv=$('#cv'),ctx=cv.getContext('2d');
+const el=()=>!started?0:acc+(run==='go'?(now()-t0)/1000:0);
+const fmtT=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+(s%60).toFixed(2).padStart(5,'0');
+let sm={},actx=null;
+const smo=(k,v)=>sm[k]=sm[k]==null?v:sm[k]*.55+v*.45; // penghalus sudut (EMA)
+function repFx(){ // getar + bunyi tiap repetisi
+ try{navigator.vibrate&&navigator.vibrate(60);actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.connect(g);g.connect(actx.destination);o.frequency.value=880;g.gain.value=.15;o.start();o.stop(actx.currentTime+.1)}catch(e){}
+}
+const isJ=()=>cur==='vjump'||cur==='bjump';
+// ===== Dialog & notifikasi (pengganti alert/confirm/prompt bawaan browser) =====
+let tt;
+function toast(m){const t=$('#toast');t.textContent=(/tersimpan|dipulihkan|dihapus/.test(m)?'✅ ':'ℹ️ ')+m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2800)}
+function ask(t,m,o={}){return new Promise(res=>{
+ $('#mt').textContent=t;$('#mm').textContent=m||'';const i=$('#mi'),ok=$('#mo'),c=$('#mc');
+ i.hidden=!o.input;i.value='';i.placeholder=o.input||'';ok.textContent=o.ok||'OK';ok.style.background=o.danger?'#dc2626':'';c.textContent='Batal';
+ $('#mdl').classList.add('on');if(o.input)setTimeout(()=>i.focus(),60);
+ const done=v=>{$('#mdl').classList.remove('on');ok.onclick=c.onclick=null;res(v)};
+ ok.onclick=()=>done(o.input?i.value:true);c.onclick=()=>done(o.input?null:false);
+})}
+// ===== Navigasi =====
+const NAV=[['dash','🏠','Dashboard'],['peserta','👥','Peserta'],['test','⏱','Pengujian'],['hasil','📊','Hasil'],['riwayat','🕘','Riwayat'],['set','⚙️','Pengaturan']];
+$('#nav').innerHTML=NAV.map(a=>`<button data-v="${a[0]}" onclick="${a[0]=='test'?"openTest(cur)":`go('${a[0]}')`}"><span>${a[1]}</span>${a[2]}</button>`).join('');
+function go(v){
+ if(v!=='test'){stopCam();run='idle'}
+ document.querySelectorAll('.v').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ if(v==='dash')rDash();if(v==='peserta')rP();if(v==='hasil')rHasil();if(v==='riwayat')rRiw();if(v==='set')rNorm();
+ scrollTo(0,0);
+}
+function rDash(){
+ $('#v-dash').innerHTML='<h2>Dashboard</h2><div class="grid">'+Object.entries(T).map(([k,t])=>`<div class="card" style="--c:${t.c}"><div class="ch">${t.i} ${t.n}</div><div class="ill">${t.i}</div><p>${t.d}</p><button class="btn" onclick="openTest('${k}')">▶ MULAI</button></div>`).join('')+`</div><p class="muted">${db.p.length} peserta • ${db.r.length} hasil tersimpan (tersimpan di browser ini)</p>`;
+}
+// ===== Peserta (CRUD) =====
+function fillSel(){
+ const o=db.p.map(p=>`<option value="${p.id}">${esc(p.nama)} (${esc(p.no)})</option>`).join('');
+ const t=$('#tp').value,h=$('#hp').value;
+ $('#tp').innerHTML=o||'<option value="">— Tambah peserta dulu —</option>';
+ $('#hp').innerHTML='<option value="">Semua peserta</option>'+o;
+ $('#tp').value=t;$('#hp').value=h;
+}
+function rP(){
+ const q=$('#q').value.toLowerCase();
+ $('#plist').innerHTML=db.p.filter(p=>(p.nama+p.no).toLowerCase().includes(q)).map(p=>`<div class="row"><div onclick="detP('${p.id}')" style="flex:1"><b>${esc(p.nama)}</b><br><small>${esc(p.no)} • ${p.jk} • ${age(p.tl)} th • ${esc(p.kelas)}</small></div><div><button onclick="editP('${p.id}')">✏️</button><button onclick="delP('${p.id}')">🗑</button></div></div>`).join('')||'<p class="muted">Belum ada peserta. Tekan “Tambah”.</p>';
+ fillSel();
+}
+function editP(id){
+ const p=db.p.find(x=>x.id===id)||{};
+ $('#dpt').textContent=id?'Edit peserta':'Tambah peserta';
+ $('#pid').value=id||'';$('#pn').value=p.nama||'';$('#pno').value=p.no||'';$('#pjk').value=p.jk||'L';
+ $('#ptl').value=p.tl||'';$('#ptb').value=p.tb||'';$('#pbb').value=p.bb||'';$('#pk').value=p.kelas||'';
+ $('#dp').showModal();
+}
+function saveP(e){
+ e.preventDefault();
+ const o={id:$('#pid').value||uid(),nama:$('#pn').value.trim(),no:$('#pno').value.trim(),jk:$('#pjk').value,tl:$('#ptl').value,tb:+$('#ptb').value,bb:+$('#pbb').value||0,kelas:$('#pk').value.trim()};
+ const i=db.p.findIndex(x=>x.id===o.id);i>=0?db.p[i]=o:db.p.push(o);
+ save();$('#dp').close();rP();
+}
+async function delP(id){
+ if(!await ask('Hapus peserta?','Peserta beserta seluruh hasil tesnya akan dihapus permanen.',{ok:'Hapus',danger:1}))return;
+ db.p=db.p.filter(p=>p.id!==id);db.r=db.r.filter(r=>r.pid!==id);save();rP();
+}
+function detP(id){
+ const p=db.p.find(x=>x.id===id),rs=db.r.filter(r=>r.pid===id);
+ $('#dd').innerHTML=`<h3>${esc(p.nama)}</h3><p>No: ${esc(p.no)}<br>Jenis kelamin: ${p.jk=='L'?'Laki-laki':'Perempuan'}<br>Lahir: ${p.tl} (${age(p.tl)} th)<br>TB/BB: ${p.tb} cm / ${p.bb||'-'} kg<br>Kelas: ${esc(p.kelas)}<br>Jumlah tes tersimpan: ${rs.length}</p><button class="btn" onclick="dd.close()">Tutup</button>`;
+ $('#dd').showModal();
+}
+// ===== Halaman pengujian =====
+function openTest(k){
+ cur=k;resetT();const t=T[k];
+ $('#v-test').style.setProperty('--c',t.c);
+ $('#tabs').innerHTML=Object.entries(T).map(([j,x])=>`<button style="--c:${x.c}" class="${j==k?'on':''}" onclick="openTest('${j}')">${x.i} ${x.n}</button>`).join('');
+ $('#tip').innerHTML='<b>Petunjuk & posisi kamera:</b> '+t.tip;
+ let o='';
+ if(k=='sprint')o=`<div class="two"><div><label>Jarak lintasan (m)</label><input id="o1" type="number" value="20" min="1"></div><div><label>Mode</label><select id="o2"><option value="ai">Otomatis (deteksi garis)</option><option value="man">Timer manual</option></select></div><div><label>Garis mulai (% lebar)</label><input id="o3" type="range" min="2" max="98" value="20"></div><div><label>Garis akhir (% lebar)</label><input id="o4" type="range" min="2" max="98" value="80"></div></div>`;
+ if(k=='agility')o=`<div class="two"><div><label>Jarak antar cone (m)</label><input id="o1" type="number" value="5"></div><div><label>Jumlah lintasan target</label><input id="o2" type="number" value="6" min="1"></div></div>`;
+ if(k=='pushup'||k=='situp')o=`<label>Batas durasi (detik, 0 = tanpa batas)</label><input id="o1" type="number" value="60" min="0">`;
+ $('#opts').innerHTML=o;
+ go('test');fillSel();startCam();
+}
+async function startCam(){
+ stopCam();$('#vw').classList.toggle('mir',cam==='user');
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){stat('Kamera tidak didukung. Buka lewat HTTPS dan browser terbaru.');return}
+ try{
+  stat('Meminta izin kamera…');
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:cam,width:{ideal:640},height:{ideal:480}},audio:false});
+  vid.srcObject=stream;await vid.play();cv.width=vid.videoWidth;cv.height=vid.videoHeight;
+ }catch(e){
+  stream=null;
+  stat(e.name==='NotAllowedError'?'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser lalu muat ulang kamera.':e.name==='NotFoundError'?'Kamera tidak ditemukan.':'Kamera gagal dibuka: '+e.message);return;
+ }
+ if(!pose){
+  stat('Memuat model AI…');
+  try{ if(!window.loadPose)await new Promise(r=>addEventListener('poseReady',r,{once:true})); pose=await window.loadPose()}
+  catch(e){stat('Model AI gagal dimuat (periksa koneksi internet). Timer & input manual tetap bisa dipakai.');return}
+ }
+ stat('Kamera aktif. Berdiri di depan kamera.');lastT=0;loop();
+}
+function stopCam(){cancelAnimationFrame(raf);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}vid.srcObject=null}
+const stat=m=>$('#st').textContent=m;
+const warn=m=>$('#wn').textContent=m||'';
+const CONN=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,31],[28,32]];
+// Loop deteksi pose: hanya memproses frame video baru
+function loop(){
+ if(!stream)return;raf=requestAnimationFrame(loop);
+ if(!pose||vid.currentTime===lastT||vid.readyState<2)return;lastT=vid.currentTime;
+ const res=pose.detectForVideo(vid,now());
+ ctx.clearRect(0,0,cv.width,cv.height);
+ if(cur==='sprint'&&$('#o3')){ctx.lineWidth=3;[['#22c55e','o3'],['#ef4444','o4']].forEach(([c,i])=>{ctx.strokeStyle=c;const x=$('#'+i).value/100*cv.width;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke()})}
+ const L=res.landmarks&&res.landmarks[0];
+ if(!L){stat('⚠ Tubuh tidak terdeteksi. Mundur agar seluruh tubuh terlihat & pencahayaan cukup.');return}
+ const W=cv.width,H=cv.height;
+ ctx.strokeStyle='#22d3ee';ctx.lineWidth=3;
+ CONN.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(L[a].x*W,L[a].y*H);ctx.lineTo(L[b].x*W,L[b].y*H);ctx.stroke()});
+ ctx.fillStyle='#a3e635';[0,11,12,13,14,15,16,23,24,25,26,27,28].forEach(i=>{ctx.beginPath();ctx.arc(L[i].x*W,L[i].y*H,5,0,7);ctx.fill()});
+ stat('✔ Tubuh terdeteksi'+(run==='go'?' • Pengujian berjalan':''));
+ if(run==='go'||(run==='count'&&isJ()))analyze(L);
+ else if(run==='idle')analyze(L,true);
+}
+const ang=(a,b,c)=>{let r=Math.atan2(c.y-b.y,c.x-b.x)-Math.atan2(a.y-b.y,a.x-b.x);r=Math.abs(r*180/Math.PI);return r>180?360-r:r};
+// Analisis gerakan per tes
+function analyze(L,prev){
+ const W=cv.width,H=cv.height,P=i=>({x:L[i].x*W,y:L[i].y*H,v:L[i].visibility??1});
+ const lv=[11,13,15,23,25,27],rv=[12,14,16,24,26,28],av=a=>a.reduce((s,i)=>s+(L[i].visibility??1),0)/a.length;
+ const [s,e,w,h,k,a]=(av(lv)>=av(rv)?lv:rv).map(P);
+ const hx=(L[23].x+L[24].x)/2,ay=(P(27).y+P(28).y)/2,ax=(P(27).x+P(28).x)/2,ny=P(0).y;
+ const dur=el();
+ if(prev){ // pratinjau real-time sebelum mulai: tampilkan sudut sendi
+  if(cur==='pushup'){live='Siku '+Math.round(smo('A',ang(s,e,w)))+'° • Badan '+Math.round(smo('B',ang(s,h,a)))+'°'}
+  else if(cur==='situp'){live='Sudut '+Math.round(smo('A',ang(s,h,k)))+'°'}
+  else live='Tubuh terdeteksi ✔';
+  return;
+ }
+ if(isJ()&&run==='count'){ if(P(27).v>.5&&P(28).v>.5&&P(0).v>.5)cal.push({ay,ax,hp:ay-ny}); return}
+ if(cur==='pushup'){
+  const A=smo('A',ang(s,e,w)),B=smo('B',ang(s,h,a));
+  warn(B<145?'⚠ Pinggul terlalu turun/naik — luruskan badan':'');
+  if(ph===null&&A>150)ph='up';
+  else if(ph==='up'&&A<100){ph='down';bad=B<145}
+  else if(ph==='down'){if(B<145)bad=true;if(A>150){ph='up';if(!bad){n++;repFx()}else warn('Repetisi tidak dihitung: badan tidak lurus')}}
+  live=n+' kali • siku '+Math.round(A)+'°';
+ }
+ if(cur==='situp'){
+  const A=smo('A',ang(s,h,k));
+  if(ph===null&&A>110)ph='down';
+  else if(ph==='down'){minA=Math.min(minA,A);if(A<80){ph='up';n++;repFx();minA=999;warn('')}else if(A>110&&minA<110){warn('⚠ Naik lebih tinggi (sudut <80°)');minA=999}}
+  else if(ph==='up'&&A>110){ph='down';minA=999}
+  live=n+' kali • sudut '+Math.round(A)+'°';
+ }
+ if(isJ()){
+  const rise=(base.ay-ay)/base.hp;
+  if(rise>.04){jmp=true;peak=Math.max(peak,rise)}
+  if(cur==='vjump'){
+   live='Terbaik '+(peak*base.hp*sc).toFixed(1)+' cm';
+   if(jmp&&rise<.015)finish(+(peak*base.hp*sc).toFixed(1),'Kalibrasi tinggi badan (estimasi)',dur,'AI');
+  }else{
+   const d=Math.abs(ax-base.ax)*sc;if(jmp)live=d.toFixed(1)+' cm';
+   if(jmp&&rise<.02){stab++;if(stab>8)finish(+d.toFixed(1),'Kalibrasi tinggi badan (estimasi)',dur,'AI')}else stab=0;
+  }
+ }
+ if(cur==='sprint'&&$('#o2').value==='ai'){
+  const ss=Math.sign(hx-$('#o3').value/100),es=Math.sign(hx-$('#o4').value/100);
+  if(!started){if(psd!==null&&ss!==psd){started=true;t0=now();acc=0}}
+  else if(pe!==null&&es!==pe)finishSprint('AI');
+  psd=ss;pe=es;
+  if(!started)live='Menunggu melewati garis mulai';
+ }
+ if(cur==='agility'){
+  if(ag.x0==null)ag.x0=hx;
+  if(!started&&Math.abs(hx-ag.x0)>.05){started=true;t0=now();acc=0}
+  if(!ag.dir){if(started&&Math.abs(hx-ag.x0)>.1){ag.dir=Math.sign(hx-ag.x0);ag.ext=hx}}
+  else{
+   ag.ext=ag.dir>0?Math.max(ag.ext,hx):Math.min(ag.ext,hx);
+   if(ag.dir*(ag.ext-hx)>.12){ag.laps++;ag.dir=-ag.dir;ag.ext=hx}
+  }
+  live=ag.laps+' / '+$('#o2').value+' lintasan';
+  if(ag.laps>=+$('#o2').value)finish(+el().toFixed(2),ag.laps+' lintasan × '+$('#o1').value+' m',el(),'AI');
+ }
+}
+// ===== Kontrol pengujian =====
+function finish(val,ex,dur,src){
+ if(run==='done')return;run='done';acc=dur;started=true;
+ pend={val,ex,dur:+(+dur).toFixed(1),src};live='Hasil: '+val+' '+T[cur].u;warn('');
+ stat('Selesai. Tekan Simpan untuk menyimpan hasil.');btn();
+}
+function finishSprint(src){
+ const t=el(),D=+$('#o1').value;if(t<=0)return;const v=D/t;
+ finish(+v.toFixed(2),`${D} m • ${t.toFixed(2)} s • ${(v*3.6).toFixed(1)} km/jam`,t,src);
+}
+function btn(){
+ $('#bStart').disabled=run==='count'||run==='go'||run==='pause';
+ $('#bPause').disabled=!(run==='go'||run==='pause');$('#bPause').textContent=run==='pause'?'▶ Lanjut':'⏸ Jeda';
+ $('#bStop').disabled=!(run==='go'||run==='pause');
+ $('#bSave').disabled=!pend;
+}
+function resetT(){
+ run='idle';acc=0;started=false;n=0;ph=null;pend=null;live='';cal=[];base=null;jmp=false;peak=0;stab=0;psd=null;pe=null;ag={laps:0};minA=999;sm={};bad=false;
+ $('#cd').textContent='';warn('');$('#tm').textContent='00:00.00';$('#rs').textContent='—';btn();
+}
+async function start(){
+ if(run!=='idle')return;
+ const p=db.p.find(x=>x.id===$('#tp').value);
+ if(!p){toast('Pilih atau tambah peserta terlebih dahulu.');return}
+ if(!stream||!pose){if(!(cur==='sprint'&&$('#o2').value==='man')){toast('Kamera/model AI belum siap. Tunggu status “Kamera aktif”.');return}}
+ resetT();run='count';btn();
+ if(isJ())stat('Berdiri tegak untuk kalibrasi…');
+ for(let i=3;i>0;i--){$('#cd').textContent=i;await sleep(1000);if(run!=='count')return}
+ $('#cd').textContent='';
+ if(isJ()){
+  if(cal.length<8){run='idle';btn();warn('Kalibrasi gagal: seluruh tubuh (kepala–kaki) harus terlihat.');return}
+  const m=k=>cal.reduce((s,c)=>s+c[k],0)/cal.length;
+  base={ay:m('ay'),ax:m('ax'),hp:m('hp')};sc=p.tb*0.92/base.hp; // cm per piksel, estimasi: kepala–pergelangan ≈ 92% tinggi badan
+ }
+ run='go';t0=now();
+ if(cur!=='sprint'&&cur!=='agility')started=true;
+ if(cur==='sprint'&&$('#o2').value==='man')started=true;
+ btn();
+}
+function pauseR(){
+ if(run==='go'){acc=el();run='pause'}else if(run==='pause'){t0=now();run='go'}btn();
+}
+function stopRun(){
+ if(run!=='go'&&run!=='pause')return;
+ if(run==='pause')run='go';const t=el();
+ if(cur==='sprint'){started&&t>0?finishSprint($('#o2').value==='man'?'Manual (timer)':'AI'):warn('Belum ada waktu tercatat')}
+ else if(cur==='agility')finish(+t.toFixed(2),ag.laps+' lintasan × '+$('#o1').value+' m',t,'AI');
+ else if(isJ()){
+  if(!jmp){warn('Belum ada lompatan terdeteksi');return}
+  const v=cur==='vjump'?peak*base.hp*sc:0;
+  if(cur==='vjump')finish(+v.toFixed(1),'Kalibrasi tinggi badan (estimasi)',t,'AI');else warn('Tahan posisi mendarat sampai hasil muncul')
+ }
+ else finish(n,'',t,'AI');
+}
+async function manualIn(){
+ const p=$('#tp').value;if(!p){toast('Pilih peserta dahulu.');return}
+ const v=await ask('Input manual','Masukkan hasil ('+T[cur].u+')',{input:'Contoh: 12',ok:'Simpan'});if(v===null||v===''||isNaN(+String(v).replace(',','.')))return;
+ run='done';pend={val:+String(v).replace(',','.'),ex:'Input manual',dur:0,src:'Manual'};live='Manual: '+v+' '+T[cur].u;btn();
+}
+function saveRes(){
+ const p=$('#tp').value;if(!pend||!p)return;
+ db.r.push({id:uid(),pid:p,t:cur,date:new Date().toISOString(),...pend});save();
+ toast('Hasil tersimpan.');pend=null;btn();
+}
+setInterval(()=>{
+ if($('#v-test').classList.contains('on')){
+  $('#tm').textContent=fmtT(el());$('#big').textContent=(cur==='pushup'||cur==='situp')&&run!=='idle'&&run!=='count'?n:'';$('#rs').textContent=live||'—';
+  if(run==='go'&&(cur==='pushup'||cur==='situp')){const d=+$('#o1').value;if(d>0&&el()>=d)finish(n,'Batas '+d+' detik',el(),'AI')}
+ }
+},100);
+// ===== Penilaian / norma =====
+function grade(r){
+ const p=db.p.find(x=>x.id===r.pid);if(!p)return '';const a=age(p.tl);
+ const m=db.n.find(x=>x.t===r.t&&(x.g==='*'||x.g===p.jk)&&a>=+x.a1&&a<=+x.a2&&x.min!==''&&x.max!==''&&r.val>=+x.min&&r.val<=+x.max);
+ return m?m.label:'';
+}
+function rNorm(){
+ $('#norm').innerHTML='<tr><th>Tes</th><th>JK</th><th>Umur min</th><th>Umur maks</th><th>Nilai min</th><th>Nilai maks</th><th>Kategori</th><th></th></tr>'+db.n.map((x,i)=>`<tr><td><select onchange="setN(${i},'t',this.value)">${Object.entries(T).map(([k,t])=>`<option value="${k}" ${x.t==k?'selected':''}>${t.n}</option>`).join('')}</select></td><td><select onchange="setN(${i},'g',this.value)"><option value="*" ${x.g=='*'?'selected':''}>Semua</option><option value="L" ${x.g=='L'?'selected':''}>L</option><option value="P" ${x.g=='P'?'selected':''}>P</option></select></td>`+['a1','a2','min','max'].map(f=>`<td><input type="number" step="any" value="${x[f]}" onchange="setN(${i},'${f}',this.value)"></td>`).join('')+`<td><input value="${esc(x.label)}" onchange="setN(${i},'label',this.value)"></td><td><button onclick="db.n.splice(${i},1);save();rNorm()">🗑</button></td></tr>`).join('');
+}
+function addN(){db.n.push({t:'sprint',g:'*',a1:'',a2:'',min:'',max:'',label:''});save();rNorm()}
+function setN(i,f,v){db.n[i][f]=v;save()}
+// ===== Hasil, grafik, laporan =====
+const nm=id=>(db.p.find(p=>p.id===id)||{nama:'(dihapus)'}).nama;
+function filt(){
+ const pid=$('#hp').value,f=$('#hf').value,t=$('#ht').value;
+ return db.r.filter(r=>(!pid||r.pid===pid)&&(!f||r.date.slice(0,10)>=f)&&(!t||r.date.slice(0,10)<=t)).sort((a,b)=>a.date<b.date?-1:1);
+}
+const fv=r=>r.val+' '+T[r.t].u;
+function rHasil(){
+ if(!$('#hc').innerHTML)$('#hc').innerHTML=Object.entries(T).map(([k,t])=>`<option value="${k}">${t.n}</option>`).join('');
+ const rs=filt(),pid=$('#hp').value,ids=pid?[pid]:db.p.map(p=>p.id);
+ $('#rep').innerHTML=ids.map(id=>{
+  const p=db.p.find(x=>x.id===id),mine=rs.filter(r=>r.pid===id);
+  return `<div class="rp"><h3>Laporan Kebugaran Jasmani — FitTest AI</h3><p><b>${esc(p.nama)}</b> • No ${esc(p.no)} • ${p.jk=='L'?'Laki-laki':'Perempuan'} • ${age(p.tl)} th • TB ${p.tb} cm • BB ${p.bb||'-'} kg • ${esc(p.kelas)}</p>
+  <table><tr><th>Tanggal</th><th>Tes</th><th>Hasil</th><th>Keterangan</th><th>Durasi</th><th>Sumber</th><th>Kategori</th></tr>${mine.map(r=>`<tr><td>${new Date(r.date).toLocaleString('id-ID')}</td><td>${T[r.t].n}</td><td><b>${fv(r)}</b></td><td>${esc(r.ex)}</td><td>${r.dur?r.dur+' s':'-'}</td><td>${esc(r.src)}</td><td>${esc(grade(r))}</td></tr>`).join('')||'<tr><td colspan=7>Belum ada hasil.</td></tr>'}</table></div>`;
+ }).join('')||'<p class="muted">Belum ada data.</p>';
+ drawChart(rs.filter(r=>r.t===$('#hc').value&&(!pid||r.pid===pid)));
+}
+// Grafik garis sederhana (canvas)
+function drawChart(rs){
+ const c=$('#chart'),g=c.getContext('2d'),W=c.width,H=c.height;g.clearRect(0,0,W,H);g.font='13px sans-serif';
+ const t=T[$('#hc').value];
+ if(rs.length<1){g.fillStyle='#678';g.fillText('Belum ada data untuk grafik '+t.n,20,H/2);return}
+ const v=rs.map(r=>r.val),mx=Math.max(...v),mn=Math.min(...v,0),pad=40;
+ const X=i=>pad+(rs.length<2?(W-2*pad)/2:i*(W-2*pad)/(rs.length-1)),Y=x=>H-pad-(x-mn)/((mx-mn)||1)*(H-2*pad);
+ g.strokeStyle=t.c;g.fillStyle=t.c;g.lineWidth=3;g.beginPath();rs.forEach((r,i)=>i?g.lineTo(X(i),Y(r.val)):g.moveTo(X(i),Y(r.val)));g.stroke();
+ rs.forEach((r,i)=>{g.beginPath();g.arc(X(i),Y(r.val),5,0,7);g.fill();g.fillStyle='#234';g.fillText(r.val,X(i)-10,Y(r.val)-10);g.fillStyle=t.c});
+ g.fillStyle='#234';g.fillText(t.n+' ('+t.u+')',10,16);
+}
+function rRiw(){
+ $('#rlist').innerHTML=db.r.slice().reverse().map(r=>`<div class="row"><div><b>${T[r.t].i} ${T[r.t].n}: ${fv(r)}</b><br><small>${esc(nm(r.pid))} • ${new Date(r.date).toLocaleString('id-ID')} • ${esc(r.src)}${r.ex?' • '+esc(r.ex):''}</small></div><button onclick="delR('${r.id}')">🗑</button></div>`).join('')||'<p class="muted">Belum ada riwayat.</p>';
+}
+async function delR(id){if(await ask('Hapus hasil?','Hasil tes ini akan dihapus dari riwayat.',{ok:'Hapus',danger:1})){db.r=db.r.filter(r=>r.id!==id);save();rRiw();toast('Hasil dihapus')}}
+// ===== Ekspor / impor =====
+function dl(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
+function csv(all){
+ const rs=all===true?db.r:filt(),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+ const rows=[['Peserta','No','JK','Umur','Tanggal','Tes','Hasil','Satuan','Keterangan','Durasi (s)','Sumber','Kategori']].concat(rs.map(r=>{const p=db.p.find(x=>x.id===r.pid)||{};return [p.nama,p.no,p.jk,age(p.tl),r.date,T[r.t].n,r.val,T[r.t].u,r.ex,r.dur,r.src,grade(r)]}));
+ dl('fittest-hasil.csv','\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n'),'text/csv');
+}
+function exp(){dl('fittest-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db),'application/json')}
+function imp(e){
+ const f=e.target.files[0];if(!f)return;const r=new FileReader();
+ r.onload=async()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.p)||!Array.isArray(d.r))throw 0;if(!await ask('Pulihkan backup?','Semua data saat ini akan diganti dengan isi file backup.',{ok:'Pulihkan'}))return;db={p:d.p,r:d.r,n:d.n||[]};save();toast('Backup dipulihkan.');go('dash')}catch(x){toast('File backup tidak valid.')}};
+ r.readAsText(f);e.target.value='';
+}
+async function wipe(){if(await ask('Hapus semua data?','Seluruh peserta, hasil, dan norma akan hilang. Tidak bisa dibatalkan.',{ok:'Hapus semua',danger:1})){db={p:[],r:[],n:[]};save();go('dash')}}
+// Daftarkan fungsi ke window agar bisa dipanggil dari atribut onclick
+Object.assign(window,{go,openTest,rP,editP,saveP,delP,detP,startCam,start,pauseR,resetT,stopRun,saveRes,manualIn,rHasil,csv,addN,setN,rNorm,exp,imp,wipe,delR});
+window.cur=cur;
+go('dash');
+</script>
+</body></html>
